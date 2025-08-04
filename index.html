@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Snake Game - Classic Arcade Game Online</title>
+    <meta name="description" content="Play the classic Snake game online! Control your snake, eat food, avoid obstacles and compete for high scores. Features multiple levels and responsive design.">
+    <meta name="keywords" content="snake game, arcade game, classic game, online game, retro game">
+    <meta name="author" content="Snake Game">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="">
+    <meta property="og:title" content="Snake Game - Classic Arcade Game">
+    <meta property="og:description" content="Play the classic Snake game online with high scores and multiple levels!">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80'>🐍</text></svg>">
+    
+    <!-- Preload critical CSS -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Prevent zoom on mobile -->
+    <meta name="format-detection" content="telephone=no">
+</head>
+<body>
+    <!-- Tela inicial -->
+    <div class="start-screen" id="startScreen" role="main">
+        <div class="start-container">
+            <h1>🐍 Snake Game</h1>
+            <div class="nickname-input">
+                <label for="playerName">Enter your nickname:</label>
+                <input type="text" id="playerName" maxlength="15" placeholder="Player" autocomplete="nickname" aria-describedby="nickname-help">
+                <div id="nickname-help" class="sr-only">Enter a nickname up to 15 characters</div>
+            </div>
+            <div class="start-buttons">
+                <button onclick="startGame()" class="start-btn" aria-describedby="start-help">Start Game</button>
+                <div id="start-help" class="sr-only">Begin playing the snake game</div>
+                <button onclick="showHighScores()" class="highscore-btn">High Scores</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tela de highscores -->
+    <div class="highscores-screen" id="highscoresScreen">
+        <div class="highscores-container">
+            <h2>🏆 High Scores</h2>
+            <div id="highscoresList"></div>
+            <button onclick="backToStart()" class="back-btn">Back</button>
+        </div>
+    </div>
+
+    <!-- Tela do jogo -->
+    <div class="game-container" id="gameContainer" style="display: none;">
+        <div class="score-container">
+            <h1>Snake Game</h1>
+            <div class="player-info">
+                <div class="player-name">Player: <span id="currentPlayer">Player</span></div>
+            </div>
+            <div class="game-info">
+                <div class="score">Score: <span id="score">0</span></div>
+                <div class="level">Level: <span id="level">1</span></div>
+            </div>
+        </div>
+        <div class="canvas-container">
+            <canvas id="gameCanvas"></canvas>
+        </div>
+        <div class="game-over" id="gameOver">
+            <h2>Game Over!</h2>
+            <p>Player: <span id="gameOverPlayer">Player</span></p>
+            <p>Final Score: <span id="finalScore">0</span></p>
+            <p id="newHighScore" style="display: none; color: #f39c12; font-weight: bold;">🎉 New High Score!</p>
+            <div class="game-over-buttons">
+                <button onclick="restartGame()">Play Again</button>
+                <button onclick="showHighScores()">High Scores</button>
+                <button onclick="backToStart()">Main Menu</button>
+            </div>
+        </div>
+        <div class="controls">
+            <div class="desktop-controls">
+                <p>🖮 Use arrow keys to control the snake</p>
+            </div>
+            <div class="mobile-controls" id="mobileControls">
+                <div class="control-pad">
+                    <button class="control-btn up" id="upBtn" aria-label="Move up">▲</button>
+                    <div class="control-row">
+                        <button class="control-btn left" id="leftBtn" aria-label="Move left">◀</button>
+                        <button class="control-btn right" id="rightBtn" aria-label="Move right">▶</button>
+                    </div>
+                    <button class="control-btn down" id="downBtn" aria-label="Move down">▼</button>
+                </div>
+            </div>
+            <p><small>📈 New level every 50 points • 🚧 Obstacles appear from level 2</small></p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
