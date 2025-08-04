@@ -1,29 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Snake Game - Classic Arcade Game Online</title>
-    <meta name="description" content="Play the classic Snake game online! Control your snake, eat food, avoid obstacles and compete for high scores. Features multiple levels and responsive design.">
+    <meta name="description"
+        content="Play the classic Snake game online! Control your snake, eat food, avoid obstacles and compete for high scores. Features multiple levels and responsive design.">
     <meta name="keywords" content="snake game, arcade game, classic game, online game, retro game">
     <meta name="author" content="Snake Game">
     <meta name="robots" content="index, follow">
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="">
     <meta property="og:title" content="Snake Game - Classic Arcade Game">
     <meta property="og:description" content="Play the classic Snake game online with high scores and multiple levels!">
-    
+
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80'>🐍</text></svg>">
-    
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80'>🐍</text></svg>">
+
     <!-- Preload critical CSS -->
     <link rel="stylesheet" href="style.css">
-    
+
     <!-- Prevent zoom on mobile -->
     <meta name="format-detection" content="telephone=no">
 </head>
+
 <body>
     <!-- Tela inicial -->
     <div class="start-screen" id="startScreen" role="main">
@@ -31,7 +35,8 @@
             <h1>🐍 Snake Game</h1>
             <div class="nickname-input">
                 <label for="playerName">Enter your nickname:</label>
-                <input type="text" id="playerName" maxlength="15" placeholder="Player" autocomplete="nickname" aria-describedby="nickname-help">
+                <input type="text" id="playerName" maxlength="15" placeholder="Player" autocomplete="nickname"
+                    aria-describedby="nickname-help">
                 <div id="nickname-help" class="sr-only">Enter a nickname up to 15 characters</div>
             </div>
             <div class="start-buttons">
@@ -95,5 +100,15 @@
         </div>
     </div>
     <script src="script.js"></script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-3NXS7YGBPR"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-3NXS7YGBPR');
+    </script>
 </body>
+
 </html>
