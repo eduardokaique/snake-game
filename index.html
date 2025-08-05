@@ -21,8 +21,8 @@
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80'>🐍</text></svg>">
 
-    <!-- Preload critical CSS -->
-    <link rel="stylesheet" href="style.css">
+    <!-- Estilos organizados em módulos -->
+    <link rel="stylesheet" href="css/main.css">
 
     <!-- Prevent zoom on mobile -->
     <meta name="format-detection" content="telephone=no">
@@ -99,7 +99,8 @@
             <p><small>📈 New level every 50 points • 🚧 Obstacles appear from level 2</small></p>
         </div>
     </div>
-    <script src="script.js"></script>
+    <!-- Script principal do jogo (usando ES6 modules) -->
+    <script type="module" src="js/main.js"></script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-3NXS7YGBPR"></script>
     <script>

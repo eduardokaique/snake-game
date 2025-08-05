@@ -1,0 +1,108 @@
+/**
+ * Game Styles - Estilos da tela do jogo
+ * Contém estilos para o canvas, pontuação, controles e tela de game over
+ */
+
+/* Container principal do jogo */
+.game-container {
+    text-align: center;
+    background-color: #34495e;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Informações do jogo (pontuação, nível) */
+.score-container {
+    margin-bottom: 20px;
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.score, .level {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.score {
+    color: #e74c3c;
+}
+
+.level {
+    color: #3498db;
+}
+
+/* Informações do jogador */
+.player-info {
+    margin-bottom: 10px;
+}
+
+.player-name {
+    font-size: 16px;
+    color: #3498db;
+    font-weight: bold;
+}
+
+/* Canvas do jogo */
+.canvas-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+#gameCanvas {
+    border: 3px solid #ecf0f1;
+    background-color: #1a252f;
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Tela de Game Over */
+.game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(52, 73, 94, 0.95);
+    padding: 30px;
+    border-radius: 10px;
+    border: 2px solid #e74c3c;
+    display: none;
+}
+
+.game-over h2 {
+    color: #e74c3c;
+    margin-top: 0;
+}
+
+.game-over button {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 15px;
+}
+
+.game-over button:hover {
+    background-color: #c0392b;
+}
+
+.game-over-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.game-over-buttons button {
+    padding: 10px 20px;
+    font-size: 14px;
+}

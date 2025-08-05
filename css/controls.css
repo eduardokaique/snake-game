@@ -1,0 +1,55 @@
+/**
+ * Controls Styles - Estilos dos controles do jogo
+ * Contém estilos para controles mobile, desktop e instruções
+ */
+
+/* Controles gerais */
+.controls {
+    margin-top: 20px;
+    color: #bdc3c7;
+    font-size: 14px;
+}
+
+/* Controles desktop */
+.desktop-controls {
+    display: block;
+}
+
+/* Controles mobile */
+.mobile-controls {
+    display: none;
+    margin: 20px 0;
+}
+
+.control-pad {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.control-row {
+    display: flex;
+    gap: 60px;
+}
+
+.control-btn {
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    background-color: #34495e;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid #ecf0f1;
+    touch-action: manipulation;
+}
+
+.control-btn:hover,
+.control-btn:active {
+    background-color: #2c3e50;
+    transform: scale(0.95);
+}

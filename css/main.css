@@ -1,0 +1,26 @@
+/**
+ * Main CSS - Arquivo principal de estilos
+ * Importa todos os módulos CSS organizados
+ * 
+ * Organização:
+ * 1. Base - Reset e estilos fundamentais
+ * 2. Screens - Telas do jogo (inicial, high scores)
+ * 3. Game - Tela principal do jogo
+ * 4. Controls - Controles desktop e mobile
+ * 5. Responsive - Media queries para diferentes telas
+ */
+
+/* Importa estilos base */
+@import url('./base.css');
+
+/* Importa estilos das telas */
+@import url('./screens.css');
+
+/* Importa estilos do jogo */
+@import url('./game.css');
+
+/* Importa estilos dos controles */
+@import url('./controls.css');
+
+/* Importa estilos responsivos */
+@import url('./responsive.css');
