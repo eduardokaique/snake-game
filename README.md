@@ -190,11 +190,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with modern web technologies
 - Thanks to the web development community for best practices
 
-## 📞 Contact
-
-- **GitHub**: [@your-username](https://github.com/your-username)
-- **Project Link**: [https://github.com/your-username/snake-game](https://github.com/your-username/snake-game)
-
 ---
 
 **Enjoy playing! 🎮** If you like this project, please consider giving it a ⭐ on GitHub!
