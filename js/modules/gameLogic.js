@@ -3,7 +3,22 @@
  * Responsável pelo movimento da cobra, detecção de colisões e geração de elementos
  */
 
-import { snake, direction, gameState, food, obstacles } from './gameState.js';
+import { snake, direction, gameState, food, obstacles, powerupSpawnTimer, lastPowerupSpawn } from './gameState.js';
+import { 
+    POWERUP_CONFIG, 
+    createPowerup, 
+    addPowerup, 
+    removeExpiredPowerups,
+    checkPowerupCollision,
+    applyPowerupEffect,
+    updatePowerupEffects,
+    getScoreMultiplier,
+    isInvincible,
+    applyMagnetEffect,
+    clearAllPowerups,
+    updatePowerupAnimation,
+    isPowerupAt
+} from './powerups.js';
 
 /**
  * Gera uma nova posição para a comida
@@ -38,6 +53,11 @@ function generateFood(tileCount) {
                     break;
                 }
             }
+        }
+        
+        // Verifica se não está em power-ups
+        if (validPosition && isPowerupAt(newFood.x, newFood.y)) {
+            validPosition = false;
         }
     }
     
@@ -90,9 +110,38 @@ function generateObstacles(tileCount) {
                     }
                 }
             }
+            
+            // Verifica se não está em power-ups
+            if (validPosition && isPowerupAt(obstacle.x, obstacle.y)) {
+                validPosition = false;
+            }
         }
         
         obstacles.push(obstacle);
+    }
+}
+
+/**
+ * Atualiza sistema de power-ups
+ * @param {number} tileCount - Número de tiles no grid
+ */
+function updatePowerups(tileCount) {
+    const now = Date.now();
+    
+    // Atualiza animações
+    updatePowerupAnimation();
+    
+    // Remove power-ups expirados
+    removeExpiredPowerups();
+    
+    // Verifica se deve spawnar novo power-up
+    if (gameState.level >= POWERUP_CONFIG.minSpawnLevel && 
+        now - lastPowerupSpawn >= POWERUP_CONFIG.spawnInterval) {
+        
+        const newPowerup = createPowerup(tileCount, checkCollision);
+        if (newPowerup && addPowerup(newPowerup)) {
+            lastPowerupSpawn = now;
+        }
     }
 }
 
@@ -128,20 +177,44 @@ function moveSnake(tileCount) {
         }
     }
     
-    // Verifica colisão com obstáculos
-    for (let obstacle of obstacles) {
-        if (head.x === obstacle.x && head.y === obstacle.y) {
-            gameState.isRunning = false;
-            return 'game-over';
+    // Verifica colisão com obstáculos (apenas se não estiver invencível)
+    if (!isInvincible()) {
+        for (let obstacle of obstacles) {
+            if (head.x === obstacle.x && head.y === obstacle.y) {
+                gameState.isRunning = false;
+                return 'game-over';
+            }
         }
     }
     
     // Adiciona nova cabeça
     snake.unshift(head);
     
+    // Verifica colisão com power-ups
+    const collectedPowerup = checkPowerupCollision(head.x, head.y);
+    if (collectedPowerup) {
+        const stateChanges = applyPowerupEffect(collectedPowerup, gameState);
+        
+        // Aplica mudanças no estado do jogo
+        if (stateChanges.speed !== undefined) {
+            gameState.speed = stateChanges.speed;
+        }
+        
+        return 'powerup-collected';
+    }
+    
+    // Aplica efeito magnético na comida
+    const magnetFood = applyMagnetEffect(food, head, tileCount);
+    if (magnetFood) {
+        food.x = magnetFood.x;
+        food.y = magnetFood.y;
+    }
+    
     // Verifica se comeu a comida
     if (head.x === food.x && head.y === food.y) {
-        gameState.score += 10;
+        const basePoints = 10;
+        const multiplier = getScoreMultiplier();
+        gameState.score += basePoints * multiplier;
         
         // Verifica se subiu de nível
         const oldLevel = gameState.level;
@@ -193,4 +266,4 @@ function checkCollision(x, y, includeHead = true) {
     return false;
 }
 
-export { generateFood, generateObstacles, moveSnake, checkCollision };
+export { generateFood, generateObstacles, moveSnake, checkCollision, updatePowerups };

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -27,7 +26,6 @@
     <!-- Prevent zoom on mobile -->
     <meta name="format-detection" content="telephone=no">
 </head>
-
 <body>
     <!-- Tela inicial -->
     <div class="start-screen" id="startScreen" role="main">
@@ -40,8 +38,9 @@
                 <div id="nickname-help" class="sr-only">Enter a nickname up to 15 characters</div>
             </div>
             <div class="start-buttons">
-                <button onclick="startGame()" class="start-btn" aria-describedby="start-help">Start Game</button>
+                <button onclick="startGame()" class="start-btn" aria-describedby="start-help">Single Player</button>
                 <div id="start-help" class="sr-only">Begin playing the snake game</div>
+                <button onclick="startMultiplayer()" class="multiplayer-btn">Multiplayer (2P)</button>
                 <button onclick="showHighScores()" class="highscore-btn">High Scores</button>
             </div>
         </div>
@@ -60,17 +59,43 @@
     <div class="game-container" id="gameContainer" style="display: none;">
         <div class="score-container">
             <h1>Snake Game</h1>
-            <div class="player-info">
-                <div class="player-name">Player: <span id="currentPlayer">Player</span></div>
+            
+            <!-- UI Single Player -->
+            <div class="single-player-info" id="singlePlayerInfo">
+                <div class="player-info">
+                    <div class="player-name">Player: <span id="currentPlayer">Player</span></div>
+                </div>
+                <div class="game-info">
+                    <div class="score">Score: <span id="score">0</span></div>
+                    <div class="level">Level: <span id="level">1</span></div>
+                </div>
             </div>
-            <div class="game-info">
-                <div class="score">Score: <span id="score">0</span></div>
-                <div class="level">Level: <span id="level">1</span></div>
+            
+            <!-- UI Multiplayer -->
+            <div class="multiplayer-info" id="multiplayerInfo" style="display: none;">
+                <div class="players-scores">
+                    <div class="player1-info">
+                        <h3 style="color: #2ecc71;">Player 1</h3>
+                        <div class="player-score">Score: <span id="player1Score">0</span></div>
+                        <div class="player-status" id="player1Status">🐍 Alive</div>
+                        <small>Controls: WASD</small>
+                    </div>
+                    <div class="vs">VS</div>
+                    <div class="player2-info">
+                        <h3 style="color: #f39c12;">Player 2</h3>
+                        <div class="player-score">Score: <span id="player2Score">0</span></div>
+                        <div class="player-status" id="player2Status">🐍 Alive</div>
+                        <small>Controls: ↑↓←→</small>
+                    </div>
+                </div>
             </div>
         </div>
+        
         <div class="canvas-container">
             <canvas id="gameCanvas"></canvas>
         </div>
+        
+        <!-- Game Over Single Player -->
         <div class="game-over" id="gameOver">
             <h2>Game Over!</h2>
             <p>Player: <span id="gameOverPlayer">Player</span></p>
@@ -82,9 +107,31 @@
                 <button onclick="backToStart()">Main Menu</button>
             </div>
         </div>
+        
+        <!-- Game Over Multiplayer -->
+        <div class="multiplayer-game-over" id="multiplayerGameOver" style="display: none;">
+            <h2 id="multiplayerResultTitle">Game Over!</h2>
+            <div class="multiplayer-results">
+                <div class="player-result">
+                    <h3 style="color: #2ecc71;">Player 1</h3>
+                    <p>Score: <span id="player1FinalScore">0</span></p>
+                </div>
+                <div class="vs">VS</div>
+                <div class="player-result">
+                    <h3 style="color: #f39c12;">Player 2</h3>
+                    <p>Score: <span id="player2FinalScore">0</span></p>
+                </div>
+            </div>
+            <p id="multiplayerWinner" style="font-weight: bold; font-size: 1.2em; margin: 20px 0;"></p>
+            <div class="game-over-buttons">
+                <button onclick="restartMultiplayer()">Play Again</button>
+                <button onclick="backToStart()">Main Menu</button>
+            </div>
+        </div>
+        
         <div class="controls">
             <div class="desktop-controls">
-                <p>🖮 Use arrow keys to control the snake</p>
+                <p id="controlsText">🖮 Use arrow keys to control the snake</p>
             </div>
             <div class="mobile-controls" id="mobileControls">
                 <div class="control-pad">
@@ -96,11 +143,958 @@
                     <button class="control-btn down" id="downBtn" aria-label="Move down">▼</button>
                 </div>
             </div>
-            <p><small>📈 New level every 50 points • 🚧 Obstacles appear from level 2</small></p>
+            <p><small>📈 New level every 50 points • 🚧 Obstacles appear from level 2 (Single Player only)</small></p>
         </div>
     </div>
-    <!-- Script principal do jogo (usando ES6 modules) -->
-    <script type="module" src="js/main.js"></script>
+
+    <script>
+        // Snake Game - Versão Standalone Completa
+        
+        // ========== VARIÁVEIS GLOBAIS ==========
+        let canvas, ctx, gridSize = 20, tileCount;
+        
+        // Estado do jogo
+        let gameMode = 'singleplayer';
+        let gameInterval, animationId;
+        let gameState = {
+            score: 0,
+            level: 1,
+            speed: 400,
+            isRunning: false,
+            isStarted: false,
+            currentPlayer: 'Player'
+        };
+        
+        // Single player
+        let snake = [{ x: 10, y: 10 }];
+        let direction = { dx: 0, dy: 0 };
+        let food = {};
+        let obstacles = [];
+        
+        // Multiplayer
+        let multiplayerState = {
+            isRunning: false,
+            gameSpeed: 400,
+            player1: { score: 0, isAlive: true, name: 'Player 1', color: '#2ecc71' },
+            player2: { score: 0, isAlive: true, name: 'Player 2', color: '#e74c3c' }
+        };
+        let player1Snake = [{ x: 8, y: 10 }];
+        let player2Snake = [{ x: 12, y: 10 }];
+        let player1Direction = { dx: 0, dy: 0 };
+        let player2Direction = { dx: 0, dy: 0 };
+        
+        // Power-ups (apenas single player)
+        let powerups = [];
+        let activePowerupEffects = [];
+        let lastPowerupSpawn = 0;
+        
+        const POWERUP_TYPES = {
+            speed_boost: { color: '#ff6b35', symbol: '⚡', duration: 5000, name: 'Speed Boost' },
+            score_multiplier: { color: '#ffd93d', symbol: '✨', duration: 8000, name: 'Score x2' },
+            invincibility: { color: '#a8e6cf', symbol: '🛡️', duration: 6000, name: 'Invincible' }
+        };
+        
+        // High Scores (localStorage)
+        let highScores = JSON.parse(localStorage.getItem('snakeHighScores')) || [];
+        
+        // ========== FUNÇÕES DE CANVAS ==========
+        function initCanvas() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            
+            const maxSize = Math.min(window.innerWidth - 40, window.innerHeight - 300, 600);
+            const canvasSize = Math.floor(maxSize / 20) * 20;
+            
+            canvas.width = canvasSize;
+            canvas.height = canvasSize;
+            
+            tileCount = canvas.width / gridSize;
+        }
+        
+        function drawGame() {
+            // Limpa canvas
+            ctx.fillStyle = '#1a252f';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            if (gameMode === 'multiplayer') {
+                // Desenha cobras multiplayer
+                ctx.fillStyle = multiplayerState.player1.isAlive ? multiplayerState.player1.color : '#7f8c8d';
+                ctx.globalAlpha = multiplayerState.player1.isAlive ? 1 : 0.5;
+                for (let segment of player1Snake) {
+                    ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
+                }
+                
+                ctx.fillStyle = multiplayerState.player2.isAlive ? multiplayerState.player2.color : '#7f8c8d';
+                ctx.globalAlpha = multiplayerState.player2.isAlive ? 1 : 0.5;
+                for (let segment of player2Snake) {
+                    ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
+                }
+                ctx.globalAlpha = 1;
+            } else {
+                // Desenha cobra single player
+                ctx.fillStyle = getLevelColor();
+                for (let segment of snake) {
+                    ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
+                }
+                
+                // Desenha obstáculos (apenas single player)
+                ctx.fillStyle = '#95a5a6';
+                for (let obstacle of obstacles) {
+                    ctx.fillRect(obstacle.x * gridSize, obstacle.y * gridSize, gridSize - 2, gridSize - 2);
+                }
+                
+                // Desenha power-ups (apenas single player)
+                for (let powerup of powerups) {
+                    drawPowerup(powerup);
+                }
+            }
+            
+            // Desenha comida
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
+        }
+        
+        function drawPowerup(powerup) {
+            const x = powerup.x * gridSize;
+            const y = powerup.y * gridSize;
+            const centerX = x + gridSize / 2;
+            const centerY = y + gridSize / 2;
+            
+            // Fundo piscante
+            const alpha = 0.7 + 0.3 * Math.sin(Date.now() / 200);
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = powerup.color;
+            ctx.fillRect(x + 1, y + 1, gridSize - 2, gridSize - 2);
+            
+            // Borda
+            ctx.globalAlpha = 1;
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x + 1, y + 1, gridSize - 2, gridSize - 2);
+            
+            // Símbolo
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `${gridSize * 0.6}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(powerup.symbol, centerX, centerY);
+        }
+        
+        function getLevelColor() {
+            const colors = ['#2ecc71', '#3498db', '#9b59b6', '#e67e22', '#f39c12', '#1abc9c'];
+            return colors[(gameState.level - 1) % colors.length];
+        }
+        
+        // ========== FUNÇÕES DE LÓGICA DO JOGO ==========
+        function generateFood() {
+            let newFood, validPosition = false;
+            
+            while (!validPosition) {
+                newFood = {
+                    x: Math.floor(Math.random() * tileCount),
+                    y: Math.floor(Math.random() * tileCount)
+                };
+                
+                validPosition = true;
+                
+                // Verifica colisão com cobra(s)
+                if (gameMode === 'multiplayer') {
+                    for (let segment of [...player1Snake, ...player2Snake]) {
+                        if (segment.x === newFood.x && segment.y === newFood.y) {
+                            validPosition = false;
+                            break;
+                        }
+                    }
+                } else {
+                    for (let segment of snake) {
+                        if (segment.x === newFood.x && segment.y === newFood.y) {
+                            validPosition = false;
+                            break;
+                        }
+                    }
+                    
+                    // Verifica colisão com obstáculos
+                    if (validPosition) {
+                        for (let obstacle of obstacles) {
+                            if (obstacle.x === newFood.x && obstacle.y === newFood.y) {
+                                validPosition = false;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Verifica colisão com power-ups (single player)
+                    if (validPosition) {
+                        for (let powerup of powerups) {
+                            if (powerup.x === newFood.x && powerup.y === newFood.y) {
+                                validPosition = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            food = newFood;
+        }
+        
+        function generateObstacles() {
+            obstacles = [];
+            const obstacleCount = Math.min(gameState.level - 1, 8);
+            
+            for (let i = 0; i < obstacleCount; i++) {
+                let obstacle, validPosition = false;
+                
+                while (!validPosition) {
+                    obstacle = {
+                        x: Math.floor(Math.random() * tileCount),
+                        y: Math.floor(Math.random() * tileCount)
+                    };
+                    
+                    validPosition = true;
+                    
+                    // Verifica colisões
+                    for (let segment of snake) {
+                        if (segment.x === obstacle.x && segment.y === obstacle.y) {
+                            validPosition = false;
+                            break;
+                        }
+                    }
+                    
+                    if (validPosition && food.x === obstacle.x && food.y === obstacle.y) {
+                        validPosition = false;
+                    }
+                    
+                    if (validPosition) {
+                        for (let existingObstacle of obstacles) {
+                            if (existingObstacle.x === obstacle.x && existingObstacle.y === obstacle.y) {
+                                validPosition = false;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Verifica colisão com power-ups
+                    if (validPosition) {
+                        for (let powerup of powerups) {
+                            if (powerup.x === obstacle.x && powerup.y === obstacle.y) {
+                                validPosition = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                obstacles.push(obstacle);
+            }
+        }
+        
+        // ========== POWER-UPS ==========
+        function spawnPowerup() {
+            if (gameMode !== 'singleplayer' || powerups.length >= 2) return;
+            
+            const now = Date.now();
+            if (now - lastPowerupSpawn < 10000) return; // 10 segundos entre spawns
+            
+            const types = Object.keys(POWERUP_TYPES);
+            const randomType = types[Math.floor(Math.random() * types.length)];
+            const powerupData = POWERUP_TYPES[randomType];
+            
+            let position, attempts = 0;
+            do {
+                position = {
+                    x: Math.floor(Math.random() * tileCount),
+                    y: Math.floor(Math.random() * tileCount)
+                };
+                attempts++;
+            } while (attempts < 50 && (
+                isPositionOccupied(position.x, position.y) ||
+                (food.x === position.x && food.y === position.y)
+            ));
+            
+            if (attempts < 50) {
+                powerups.push({
+                    type: randomType,
+                    x: position.x,
+                    y: position.y,
+                    spawnTime: now,
+                    ...powerupData
+                });
+                lastPowerupSpawn = now;
+            }
+        }
+        
+        function isPositionOccupied(x, y) {
+            // Verifica cobra
+            for (let segment of snake) {
+                if (segment.x === x && segment.y === y) return true;
+            }
+            
+            // Verifica obstáculos
+            for (let obstacle of obstacles) {
+                if (obstacle.x === x && obstacle.y === y) return true;
+            }
+            
+            // Verifica outros power-ups
+            for (let powerup of powerups) {
+                if (powerup.x === x && powerup.y === y) return true;
+            }
+            
+            return false;
+        }
+        
+        function updatePowerups() {
+            const now = Date.now();
+            
+            // Remove power-ups expirados (15 segundos na tela)
+            powerups = powerups.filter(powerup => now - powerup.spawnTime < 15000);
+            
+            // Remove efeitos expirados
+            activePowerupEffects = activePowerupEffects.filter(effect => {
+                if (now - effect.startTime >= effect.duration) {
+                    // Restaura velocidade original se necessário
+                    if (effect.type === 'speed_boost' || effect.type === 'slow_motion') {
+                        gameState.speed = effect.originalSpeed;
+                        startGameLoop();
+                    }
+                    return false;
+                }
+                return true;
+            });
+        }
+        
+        function checkPowerupCollision(headX, headY) {
+            for (let i = 0; i < powerups.length; i++) {
+                if (powerups[i].x === headX && powerups[i].y === headY) {
+                    const powerup = powerups[i];
+                    powerups.splice(i, 1);
+                    applyPowerupEffect(powerup);
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        function applyPowerupEffect(powerup) {
+            const now = Date.now();
+            
+            // Remove efeitos conflitantes
+            if (powerup.type === 'speed_boost') {
+                activePowerupEffects = activePowerupEffects.filter(e => e.type !== 'slow_motion');
+            }
+            
+            const effect = {
+                type: powerup.type,
+                startTime: now,
+                duration: powerup.duration
+            };
+            
+            switch (powerup.type) {
+                case 'speed_boost':
+                    effect.originalSpeed = gameState.speed;
+                    gameState.speed = Math.max(gameState.speed / 2, 150);
+                    startGameLoop();
+                    break;
+                    
+                case 'score_multiplier':
+                    effect.multiplier = 2;
+                    break;
+                    
+                case 'invincibility':
+                    effect.invincible = true;
+                    break;
+            }
+            
+            activePowerupEffects.push(effect);
+            showPowerupNotification(powerup.name);
+        }
+        
+        function showPowerupNotification(name) {
+            // Cria notificação temporária
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 10px 15px;
+                border-radius: 5px;
+                font-weight: bold;
+                z-index: 1000;
+                animation: fadeInOut 2s ease-in-out;
+            `;
+            notification.textContent = `${name} Activated!`;
+            
+            // Adiciona CSS de animação se não existir
+            if (!document.getElementById('powerupAnimations')) {
+                const style = document.createElement('style');
+                style.id = 'powerupAnimations';
+                style.textContent = `
+                    @keyframes fadeInOut {
+                        0% { opacity: 0; transform: translateX(100px); }
+                        20%, 80% { opacity: 1; transform: translateX(0); }
+                        100% { opacity: 0; transform: translateX(100px); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 2000);
+        }
+        
+        function getScoreMultiplier() {
+            const multiplierEffect = activePowerupEffects.find(e => e.type === 'score_multiplier');
+            return multiplierEffect ? multiplierEffect.multiplier : 1;
+        }
+        
+        function isInvincible() {
+            return activePowerupEffects.some(e => e.type === 'invincibility');
+        }
+        
+        // ========== CONTROLES ==========
+        document.addEventListener('keydown', function(event) {
+            if (!gameState.isRunning && !multiplayerState.isRunning) return;
+            
+            if (gameMode === 'multiplayer') {
+                // Controles multiplayer
+                switch (event.keyCode) {
+                    case 65: setPlayer1Direction(-1, 0); break; // A
+                    case 87: setPlayer1Direction(0, -1); break; // W
+                    case 68: setPlayer1Direction(1, 0); break;  // D
+                    case 83: setPlayer1Direction(0, 1); break;  // S
+                    case 37: setPlayer2Direction(-1, 0); break; // ←
+                    case 38: setPlayer2Direction(0, -1); break; // ↑
+                    case 39: setPlayer2Direction(1, 0); break;  // →
+                    case 40: setPlayer2Direction(0, 1); break;  // ↓
+                }
+            } else {
+                // Controles single player
+                switch (event.keyCode) {
+                    case 37: setDirection(-1, 0); break; // ←
+                    case 38: setDirection(0, -1); break; // ↑
+                    case 39: setDirection(1, 0); break;  // →
+                    case 40: setDirection(0, 1); break;  // ↓
+                }
+            }
+        });
+        
+        function setDirection(dx, dy) {
+            if (snake.length > 1) {
+                const goingUp = direction.dy === -1;
+                const goingDown = direction.dy === 1;
+                const goingRight = direction.dx === 1;
+                const goingLeft = direction.dx === -1;
+                
+                if (dx === -1 && !goingRight) { direction.dx = -1; direction.dy = 0; }
+                else if (dy === -1 && !goingDown) { direction.dx = 0; direction.dy = -1; }
+                else if (dx === 1 && !goingLeft) { direction.dx = 1; direction.dy = 0; }
+                else if (dy === 1 && !goingUp) { direction.dx = 0; direction.dy = 1; }
+            } else {
+                direction.dx = dx; direction.dy = dy;
+            }
+        }
+        
+        function setPlayer1Direction(dx, dy) {
+            if (!multiplayerState.player1.isAlive) return;
+            if (player1Snake.length > 1) {
+                const goingUp = player1Direction.dy === -1;
+                const goingDown = player1Direction.dy === 1;
+                const goingRight = player1Direction.dx === 1;
+                const goingLeft = player1Direction.dx === -1;
+                
+                if (dx === -1 && !goingRight) { player1Direction.dx = -1; player1Direction.dy = 0; }
+                else if (dy === -1 && !goingDown) { player1Direction.dx = 0; player1Direction.dy = -1; }
+                else if (dx === 1 && !goingLeft) { player1Direction.dx = 1; player1Direction.dy = 0; }
+                else if (dy === 1 && !goingUp) { player1Direction.dx = 0; player1Direction.dy = 1; }
+            } else {
+                player1Direction.dx = dx; player1Direction.dy = dy;
+            }
+        }
+        
+        function setPlayer2Direction(dx, dy) {
+            if (!multiplayerState.player2.isAlive) return;
+            if (player2Snake.length > 1) {
+                const goingUp = player2Direction.dy === -1;
+                const goingDown = player2Direction.dy === 1;
+                const goingRight = player2Direction.dx === 1;
+                const goingLeft = player2Direction.dx === -1;
+                
+                if (dx === -1 && !goingRight) { player2Direction.dx = -1; player2Direction.dy = 0; }
+                else if (dy === -1 && !goingDown) { player2Direction.dx = 0; player2Direction.dy = -1; }
+                else if (dx === 1 && !goingLeft) { player2Direction.dx = 1; player2Direction.dy = 0; }
+                else if (dy === 1 && !goingUp) { player2Direction.dx = 0; player2Direction.dy = 1; }
+            } else {
+                player2Direction.dx = dx; player2Direction.dy = dy;
+            }
+        }
+        
+        // ========== FUNÇÕES PRINCIPAIS ==========
+        function startGame() {
+            gameMode = 'singleplayer';
+            
+            showScreen('game');
+            setupSinglePlayerUI();
+            
+            // Reset game state
+            gameState = {
+                score: 0,
+                level: 1,
+                speed: 400,
+                isRunning: true,
+                isStarted: true,
+                currentPlayer: document.getElementById('playerName').value || 'Player'
+            };
+            
+            snake = [{ x: Math.floor(tileCount/2), y: Math.floor(tileCount/2) }];
+            direction = { dx: 0, dy: 0 };
+            obstacles = [];
+            
+            // Limpa power-ups e efeitos
+            powerups = [];
+            activePowerupEffects = [];
+            lastPowerupSpawn = 0;
+            
+            updateScore();
+            updateLevel();
+            updatePlayerInfo();
+            
+            generateFood();
+            startGameLoop();
+        }
+        
+        function startMultiplayer() {
+            gameMode = 'multiplayer';
+            
+            showScreen('game');
+            setupMultiplayerUI();
+            
+            // Reset multiplayer state
+            multiplayerState = {
+                isRunning: true,
+                gameSpeed: 400,
+                player1: { score: 0, isAlive: true, name: 'Player 1', color: '#2ecc71' },
+                player2: { score: 0, isAlive: true, name: 'Player 2', color: '#f39c12' }
+            };
+            
+            player1Snake = [{ x: Math.floor(tileCount/4), y: Math.floor(tileCount/2) }];
+            player2Snake = [{ x: Math.floor(3*tileCount/4), y: Math.floor(tileCount/2) }];
+            player1Direction = { dx: 0, dy: 0 };
+            player2Direction = { dx: 0, dy: 0 };
+            
+            updateMultiplayerScores();
+            updatePlayerStatus('player1', true);
+            updatePlayerStatus('player2', true);
+            
+            generateFood();
+            startGameLoop();
+        }
+        
+        function gameLoop() {
+            if (gameMode === 'multiplayer') {
+                multiplayerGameLoop();
+            } else {
+                singlePlayerGameLoop();
+            }
+        }
+        
+        function singlePlayerGameLoop() {
+            if (!gameState.isRunning || (direction.dx === 0 && direction.dy === 0)) {
+                drawGame();
+                return;
+            }
+            
+            // Spawn power-ups periodically
+            spawnPowerup();
+            
+            // Update power-ups (remove expired ones)
+            updatePowerups();
+            
+            // Move snake
+            let head = {
+                x: snake[0].x + direction.dx,
+                y: snake[0].y + direction.dy
+            };
+            
+            // Wrap around
+            if (head.x < 0) head.x = tileCount - 1;
+            else if (head.x >= tileCount) head.x = 0;
+            if (head.y < 0) head.y = tileCount - 1;
+            else if (head.y >= tileCount) head.y = 0;
+            
+            // Check collisions with self
+            for (let segment of snake) {
+                if (head.x === segment.x && head.y === segment.y) {
+                    if (!isInvincible()) {
+                        endGame();
+                        return;
+                    }
+                }
+            }
+            
+            // Check collisions with obstacles
+            for (let obstacle of obstacles) {
+                if (head.x === obstacle.x && head.y === obstacle.y) {
+                    if (!isInvincible()) {
+                        endGame();
+                        return;
+                    }
+                }
+            }
+            
+            snake.unshift(head);
+            
+            // Check power-up collision
+            checkPowerupCollision(head.x, head.y);
+            
+            // Check food
+            if (head.x === food.x && head.y === food.y) {
+                gameState.score += Math.floor(10 * getScoreMultiplier());
+                const newLevel = Math.floor(gameState.score / 50) + 1;
+                
+                if (newLevel > gameState.level) {
+                    gameState.level = newLevel;
+                    if (gameState.speed > 200) gameState.speed -= 2;
+                    generateObstacles();
+                    updateLevel();
+                    startGameLoop();
+                }
+                
+                updateScore();
+                generateFood();
+            } else {
+                snake.pop();
+            }
+            
+            drawGame();
+        }
+        
+        function multiplayerGameLoop() {
+            if (!multiplayerState.isRunning) {
+                drawGame();
+                return;
+            }
+            
+            // Move Player 1
+            if (multiplayerState.player1.isAlive && (player1Direction.dx !== 0 || player1Direction.dy !== 0)) {
+                let head1 = {
+                    x: player1Snake[0].x + player1Direction.dx,
+                    y: player1Snake[0].y + player1Direction.dy
+                };
+                
+                // Wrap around
+                if (head1.x < 0) head1.x = tileCount - 1;
+                else if (head1.x >= tileCount) head1.x = 0;
+                if (head1.y < 0) head1.y = tileCount - 1;
+                else if (head1.y >= tileCount) head1.y = 0;
+                
+                // Check collisions
+                let collision = false;
+                for (let segment of player1Snake) {
+                    if (head1.x === segment.x && head1.y === segment.y) collision = true;
+                }
+                for (let segment of player2Snake) {
+                    if (head1.x === segment.x && head1.y === segment.y) collision = true;
+                }
+                
+                if (collision) {
+                    multiplayerState.player1.isAlive = false;
+                    updatePlayerStatus('player1', false);
+                } else {
+                    player1Snake.unshift(head1);
+                    
+                    // Check food
+                    if (head1.x === food.x && head1.y === food.y) {
+                        multiplayerState.player1.score += 10;
+                        updateMultiplayerScores();
+                        generateFood();
+                    } else {
+                        player1Snake.pop();
+                    }
+                }
+            }
+            
+            // Move Player 2
+            if (multiplayerState.player2.isAlive && (player2Direction.dx !== 0 || player2Direction.dy !== 0)) {
+                let head2 = {
+                    x: player2Snake[0].x + player2Direction.dx,
+                    y: player2Snake[0].y + player2Direction.dy
+                };
+                
+                // Wrap around
+                if (head2.x < 0) head2.x = tileCount - 1;
+                else if (head2.x >= tileCount) head2.x = 0;
+                if (head2.y < 0) head2.y = tileCount - 1;
+                else if (head2.y >= tileCount) head2.y = 0;
+                
+                // Check collisions
+                let collision = false;
+                for (let segment of player2Snake) {
+                    if (head2.x === segment.x && head2.y === segment.y) collision = true;
+                }
+                for (let segment of player1Snake) {
+                    if (head2.x === segment.x && head2.y === segment.y) collision = true;
+                }
+                
+                if (collision) {
+                    multiplayerState.player2.isAlive = false;
+                    updatePlayerStatus('player2', false);
+                } else {
+                    player2Snake.unshift(head2);
+                    
+                    // Check food
+                    if (head2.x === food.x && head2.y === food.y) {
+                        multiplayerState.player2.score += 10;
+                        updateMultiplayerScores();
+                        generateFood();
+                    } else {
+                        player2Snake.pop();
+                    }
+                }
+            }
+            
+            // Check game end
+            if (!multiplayerState.player1.isAlive && !multiplayerState.player2.isAlive) {
+                endMultiplayerGame('draw');
+                return;
+            } else if (!multiplayerState.player1.isAlive) {
+                endMultiplayerGame('player2');
+                return;
+            } else if (!multiplayerState.player2.isAlive) {
+                endMultiplayerGame('player1');
+                return;
+            }
+            
+            drawGame();
+        }
+        
+        function startGameLoop() {
+            if (gameInterval) clearInterval(gameInterval);
+            if (animationId) cancelAnimationFrame(animationId);
+            
+            const speed = gameMode === 'multiplayer' ? multiplayerState.gameSpeed : gameState.speed;
+            gameInterval = setInterval(gameLoop, speed);
+        }
+        
+        // ========== UI FUNCTIONS ==========
+        function showScreen(screen) {
+            document.getElementById('startScreen').style.display = screen === 'start' ? 'flex' : 'none';
+            document.getElementById('gameContainer').style.display = screen === 'game' ? 'block' : 'none';
+            document.getElementById('highscoresScreen').style.display = screen === 'highscores' ? 'block' : 'none';
+        }
+        
+        function setupSinglePlayerUI() {
+            document.getElementById('singlePlayerInfo').style.display = 'block';
+            document.getElementById('multiplayerInfo').style.display = 'none';
+            document.getElementById('controlsText').textContent = '🖮 Use arrow keys to control the snake';
+        }
+        
+        function setupMultiplayerUI() {
+            document.getElementById('singlePlayerInfo').style.display = 'none';
+            document.getElementById('multiplayerInfo').style.display = 'block';
+            document.getElementById('controlsText').textContent = '🎮 Player 1: WASD • Player 2: Arrow Keys';
+        }
+        
+        function updateScore() {
+            document.getElementById('score').textContent = gameState.score;
+        }
+        
+        function updateLevel() {
+            document.getElementById('level').textContent = gameState.level;
+        }
+        
+        function updatePlayerInfo() {
+            document.getElementById('currentPlayer').textContent = gameState.currentPlayer;
+        }
+        
+        function updateMultiplayerScores() {
+            document.getElementById('player1Score').textContent = multiplayerState.player1.score;
+            document.getElementById('player2Score').textContent = multiplayerState.player2.score;
+        }
+        
+        function updatePlayerStatus(player, isAlive) {
+            const statusElement = document.getElementById(player + 'Status');
+            if (isAlive) {
+                statusElement.textContent = '🐍 Alive';
+                statusElement.className = 'player-status alive';
+            } else {
+                statusElement.textContent = '💀 Dead';
+                statusElement.className = 'player-status dead';
+            }
+        }
+        
+        // ========== HIGH SCORES ==========
+        function saveHighScore(playerName, score, level) {
+            highScores.push({
+                name: playerName,
+                score: score,
+                level: level,
+                date: new Date().toLocaleDateString()
+            });
+            
+            // Sort by score (highest first) and keep top 10
+            highScores.sort((a, b) => b.score - a.score);
+            highScores = highScores.slice(0, 10);
+            
+            localStorage.setItem('snakeHighScores', JSON.stringify(highScores));
+        }
+        
+        function isHighScore(score) {
+            return highScores.length < 10 || score > highScores[highScores.length - 1].score;
+        }
+        
+        function updateHighScoresList() {
+            const list = document.getElementById('highscoresList');
+            
+            if (highScores.length === 0) {
+                list.innerHTML = '<p>No high scores yet! Play to set a record!</p>';
+                return;
+            }
+            
+            let html = '<div class="highscore-list">';
+            highScores.forEach((score, index) => {
+                html += `
+                    <div class="highscore-item">
+                        <span class="rank">${index + 1}</span>
+                        <span class="name">${score.name}</span>
+                        <span class="score">${score.score}</span>
+                        <span class="level">Lvl ${score.level}</span>
+                        <span class="date">${score.date}</span>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            list.innerHTML = html;
+        }
+        
+        // ========== GAME OVER ==========
+        function endGame() {
+            gameState.isRunning = false;
+            if (gameInterval) clearInterval(gameInterval);
+            
+            // Check and save high score
+            const isNewHighScore = isHighScore(gameState.score);
+            if (isNewHighScore) {
+                saveHighScore(gameState.currentPlayer, gameState.score, gameState.level);
+            }
+            
+            document.getElementById('gameOverPlayer').textContent = gameState.currentPlayer;
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('newHighScore').style.display = isNewHighScore ? 'block' : 'none';
+            document.getElementById('gameOver').style.display = 'block';
+        }
+        
+        function endMultiplayerGame(winner) {
+            multiplayerState.isRunning = false;
+            if (gameInterval) clearInterval(gameInterval);
+            
+            document.getElementById('player1FinalScore').textContent = multiplayerState.player1.score;
+            document.getElementById('player2FinalScore').textContent = multiplayerState.player2.score;
+            
+            let winnerText = '';
+            if (winner === 'draw') {
+                winnerText = "🤝 It's a Draw!";
+                document.getElementById('multiplayerResultTitle').textContent = "Draw!";
+            } else if (winner === 'player1') {
+                winnerText = "🏆 Player 1 Wins!";
+                document.getElementById('multiplayerResultTitle').textContent = "Player 1 Wins!";
+            } else if (winner === 'player2') {
+                winnerText = "🏆 Player 2 Wins!";
+                document.getElementById('multiplayerResultTitle').textContent = "Player 2 Wins!";
+            }
+            
+            document.getElementById('multiplayerWinner').textContent = winnerText;
+            document.getElementById('multiplayerGameOver').style.display = 'block';
+        }
+        
+        function restartGame() {
+            document.getElementById('gameOver').style.display = 'none';
+            startGame();
+        }
+        
+        function restartMultiplayer() {
+            document.getElementById('multiplayerGameOver').style.display = 'none';
+            startMultiplayer();
+        }
+        
+        function backToStart() {
+            gameState.isRunning = false;
+            multiplayerState.isRunning = false;
+            if (gameInterval) clearInterval(gameInterval);
+            if (animationId) cancelAnimationFrame(animationId);
+            
+            document.getElementById('gameOver').style.display = 'none';
+            document.getElementById('multiplayerGameOver').style.display = 'none';
+            showScreen('start');
+        }
+        
+        function showHighScores() {
+            showScreen('highscores');
+            updateHighScoresList();
+        }
+        
+        // ========== MOBILE CONTROLS ==========
+        function initMobileControls() {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                document.getElementById('mobileControls').style.display = 'block';
+                
+                document.getElementById('upBtn').addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    if (gameMode === 'singleplayer') setDirection(0, -1);
+                });
+                
+                document.getElementById('downBtn').addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    if (gameMode === 'singleplayer') setDirection(0, 1);
+                });
+                
+                document.getElementById('leftBtn').addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    if (gameMode === 'singleplayer') setDirection(-1, 0);
+                });
+                
+                document.getElementById('rightBtn').addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    if (gameMode === 'singleplayer') setDirection(1, 0);
+                });
+            }
+        }
+        
+        // ========== UTILITY FUNCTIONS ==========
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                   (window.innerWidth <= 768 && ('ontouchstart' in window || navigator.maxTouchPoints > 0));
+        }
+        
+        // ========== INITIALIZATION ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            initCanvas();
+            initMobileControls();
+            
+            // Esconde multiplayer em dispositivos mobile
+            if (isMobileDevice()) {
+                const multiplayerBtn = document.querySelector('.multiplayer-btn');
+                if (multiplayerBtn) {
+                    multiplayerBtn.style.display = 'none';
+                }
+            }
+            
+            generateFood();
+            drawGame();
+        });
+        
+        window.addEventListener('resize', function() {
+            if (gameState.isStarted || multiplayerState.isRunning) {
+                initCanvas();
+                drawGame();
+            }
+        });
+    </script>
+    
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-3NXS7YGBPR"></script>
     <script>
@@ -111,5 +1105,4 @@
         gtag('config', 'G-3NXS7YGBPR');
     </script>
 </body>
-
 </html>

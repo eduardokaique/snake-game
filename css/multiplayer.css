@@ -1,0 +1,272 @@
+/**
+ * Estilos para modo multiplayer
+ */
+
+/* Botão multiplayer na tela inicial */
+.multiplayer-btn {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 10px 0;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+    min-width: 200px;
+}
+
+.multiplayer-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(231, 76, 60, 0.4);
+    background: linear-gradient(135deg, #c0392b, #a93226);
+}
+
+.multiplayer-btn:active {
+    transform: translateY(0);
+}
+
+/* Layout de informações do multiplayer */
+.multiplayer-info {
+    width: 100%;
+    margin: 0;
+}
+
+.players-scores {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    background: rgba(52, 73, 94, 0.1);
+    border-radius: 15px;
+    border: 2px solid rgba(149, 165, 166, 0.3);
+}
+
+.player1-info,
+.player2-info {
+    flex: 1;
+    text-align: center;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.player1-info {
+    border-color: rgba(46, 204, 113, 0.3);
+}
+
+.player2-info {
+    border-color: rgba(231, 76, 60, 0.3);
+}
+
+.player1-info h3,
+.player2-info h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.player-score {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin: 5px 0;
+}
+
+.player-status {
+    font-size: 0.9em;
+    margin: 5px 0;
+    padding: 5px 10px;
+    border-radius: 15px;
+    background: rgba(46, 204, 113, 0.2);
+    color: #2ecc71;
+}
+
+.player-status.dead {
+    background: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+}
+
+.vs {
+    font-size: 2em;
+    font-weight: bold;
+    color: #f39c12;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    animation: pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.1);
+    }
+}
+
+.player1-info small,
+.player2-info small {
+    display: block;
+    margin-top: 8px;
+    opacity: 0.7;
+    font-size: 0.8em;
+}
+
+/* Game Over Multiplayer */
+.multiplayer-game-over {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(44, 62, 80, 0.95);
+    border: 3px solid #f39c12;
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    color: white;
+    font-family: 'Arial', sans-serif;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    min-width: 400px;
+}
+
+.multiplayer-results {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+    margin: 20px 0;
+}
+
+.player-result {
+    flex: 1;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.player-result h3 {
+    margin: 0 0 15px 0;
+    font-size: 1.3em;
+}
+
+.player-result p {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+#multiplayerWinner {
+    background: linear-gradient(45deg, #f39c12, #e67e22);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    font-size: 1.4em;
+    margin: 25px 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive para multiplayer */
+@media (max-width: 768px) {
+    .players-scores {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+    
+    .player1-info,
+    .player2-info {
+        width: 100%;
+        max-width: 250px;
+    }
+    
+    .vs {
+        font-size: 1.5em;
+        margin: 10px 0;
+    }
+    
+    .multiplayer-game-over {
+        min-width: 300px;
+        padding: 30px 20px;
+        margin: 20px;
+        max-width: calc(100vw - 40px);
+    }
+    
+    .multiplayer-results {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .player-result {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .multiplayer-btn {
+        min-width: 180px;
+        font-size: 16px;
+        padding: 12px 25px;
+    }
+    
+    .players-scores {
+        padding: 10px;
+    }
+    
+    .player1-info,
+    .player2-info {
+        padding: 12px;
+    }
+    
+    .multiplayer-game-over {
+        padding: 25px 15px;
+    }
+}
+
+/* Animações para status dos jogadores */
+.player-status {
+    transition: all 0.3s ease;
+}
+
+.player-status.alive {
+    background: rgba(46, 204, 113, 0.2);
+    color: #2ecc71;
+    animation: glow-green 2s ease-in-out infinite alternate;
+}
+
+.player-status.dead {
+    background: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+    animation: fade-red 1s ease-in-out;
+}
+
+@keyframes glow-green {
+    0% {
+        box-shadow: 0 0 5px rgba(46, 204, 113, 0.3);
+    }
+    100% {
+        box-shadow: 0 0 15px rgba(46, 204, 113, 0.6);
+    }
+}
+
+@keyframes fade-red {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 0.8;
+    }
+}

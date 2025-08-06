@@ -27,7 +27,19 @@ import {
     resetGameState, 
     getLevelColor 
 } from './modules/gameState.js';
-import { generateFood, generateObstacles, moveSnake } from './modules/gameLogic.js';
+import { generateFood, generateObstacles, moveSnake, updatePowerups } from './modules/gameLogic.js';
+import { updatePowerupEffects, clearAllPowerups, getActivePowerups, getActivePowerupEffects } from './modules/powerups.js';
+import { 
+    initMultiplayer, 
+    handleMultiplayerControls, 
+    updateMultiplayerGame,
+    setGameMode,
+    getGameMode,
+    getPlayerSnakes,
+    getMultiplayerState,
+    clearMultiplayerState,
+    multiplayerGameState
+} from './modules/multiplayer.js';
 import { initControls } from './modules/controls.js';
 import { saveHighScore, isHighScore } from './modules/storage.js';
 import { 
@@ -53,38 +65,51 @@ let animationId;
  * Configura o estado inicial e começa o loop do jogo
  */
 function startGame() {
-    const playerName = getPlayerName();
-    
-    // Atualiza variável global do jogador atual
-    Object.assign(gameState, { currentPlayer: playerName });
-    
-    // Muda para tela do jogo
-    showScreen(SCREENS.GAME);
-    updatePlayerInfo(playerName);
-    
-    // Inicializa o jogo
-    initializeGame();
+    try {
+        setGameMode('singleplayer');
+        const playerName = getPlayerName();
+        
+        // Atualiza variável global do jogador atual
+        Object.assign(gameState, { currentPlayer: playerName });
+        
+        // Muda para tela do jogo
+        showScreen(SCREENS.GAME);
+        setupSinglePlayerUI();
+        updatePlayerInfo(playerName);
+        
+        // Inicializa o jogo
+        initializeGame();
+    } catch (error) {
+        console.error('Error starting game:', error);
+    }
 }
 
 /**
  * Inicializa todos os componentes do jogo
  */
 function initializeGame() {
-    // Configura canvas responsivo
-    initCanvas();
-    
-    // Reseta estado do jogo
-    resetGameState(tileCount);
-    
-    // Atualiza UI
-    updateScore(gameState.score);
-    updateLevel(gameState.level);
-    
-    // Gera comida inicial
-    generateFood(tileCount);
-    
-    // Inicia loop do jogo
-    startGameLoop();
+    try {
+        // Configura canvas responsivo
+        initCanvas();
+        
+        // Reseta estado do jogo
+        resetGameState(tileCount);
+        
+        // Limpa power-ups anteriores
+        clearAllPowerups();
+        
+        // Atualiza UI
+        updateScore(gameState.score);
+        updateLevel(gameState.level);
+        
+        // Gera comida inicial
+        generateFood(tileCount);
+        
+        // Inicia loop do jogo
+        startGameLoop();
+    } catch (error) {
+        console.error('Error initializing game:', error);
+    }
 }
 
 /**
@@ -92,7 +117,24 @@ function initializeGame() {
  * Controla movimento, renderização e lógica do jogo
  */
 function gameLoop() {
+    const currentMode = getGameMode();
+    
+    if (currentMode === 'multiplayer') {
+        multiplayerGameLoop();
+        return;
+    }
+    
     if (!gameState.isRunning) return;
+    
+    // Atualiza sistema de power-ups
+    updatePowerups(tileCount);
+    
+    // Atualiza efeitos dos power-ups
+    const powerupStateChanges = updatePowerupEffects(gameState);
+    if (powerupStateChanges.speed !== undefined) {
+        gameState.speed = powerupStateChanges.speed;
+        updateGameSpeed();
+    }
     
     // Move a cobra e processa lógica
     const result = moveSnake(tileCount);
@@ -109,13 +151,62 @@ function gameLoop() {
             updateGameSpeed();
             break;
             
+        case 'powerup-collected':
+            // Power-up coletado, efeitos já aplicados
+            updateGameSpeed();
+            break;
+            
         case 'game-over':
             endGame();
             return;
     }
     
-    // Renderiza o jogo
-    drawGame(snake, food, obstacles, getLevelColor());
+    // Renderiza o jogo com power-ups e efeitos
+    drawGame(snake, food, obstacles, getLevelColor(), getActivePowerups(), getActivePowerupEffects());
+}
+
+/**
+ * Loop do jogo multiplayer
+ */
+function multiplayerGameLoop() {
+    if (!multiplayerGameState.isRunning) return;
+    
+    const result = updateMultiplayerGame(tileCount, food, (tc) => generateFood(tc));
+    
+    // Processa eventos do multiplayer
+    for (let event of result.events) {
+        switch (event.type) {
+            case 'food_eaten':
+                updateMultiplayerScores();
+                break;
+            case 'player_died':
+                updatePlayerStatus(event.player, false);
+                break;
+            case 'head_collision':
+                updatePlayerStatus('player1', false);
+                updatePlayerStatus('player2', false);
+                break;
+        }
+    }
+    
+    // Verifica fim de jogo
+    if (result.status === 'game_over') {
+        endMultiplayerGame(result.winner);
+        return;
+    }
+    
+    // Renderiza jogo multiplayer
+    const playerSnakes = getPlayerSnakes();
+    const mpState = getMultiplayerState();
+    
+    drawGame(null, food, [], '#2ecc71', [], [], {
+        player1Snake: playerSnakes.player1,
+        player2Snake: playerSnakes.player2,
+        player1Color: mpState.player1.color,
+        player2Color: mpState.player2.color,
+        player1Alive: mpState.player1.isAlive,
+        player2Alive: mpState.player2.isAlive
+    });
 }
 
 /**
@@ -130,12 +221,16 @@ function startGameLoop() {
     let lastTime = 0;
     
     function loop(currentTime) {
-        if (currentTime - lastTime >= gameState.speed) {
+        const currentMode = getGameMode();
+        const speed = currentMode === 'multiplayer' ? multiplayerGameState.gameSpeed : gameState.speed;
+        const isRunning = currentMode === 'multiplayer' ? multiplayerGameState.isRunning : gameState.isRunning;
+        
+        if (currentTime - lastTime >= speed) {
             gameLoop();
             lastTime = currentTime;
         }
         
-        if (gameState.isRunning) {
+        if (isRunning) {
             animationId = requestAnimationFrame(loop);
         }
     }
@@ -145,7 +240,9 @@ function startGameLoop() {
         animationId = requestAnimationFrame(loop);
     } else {
         // Fallback para navegadores antigos
-        gameInterval = setInterval(gameLoop, gameState.speed);
+        const currentMode = getGameMode();
+        const speed = currentMode === 'multiplayer' ? multiplayerGameState.gameSpeed : gameState.speed;
+        gameInterval = setInterval(gameLoop, speed);
     }
 }
 
@@ -153,7 +250,11 @@ function startGameLoop() {
  * Atualiza a velocidade do jogo (quando muda de nível)
  */
 function updateGameSpeed() {
-    if (gameState.isRunning) {
+    const currentMode = getGameMode();
+    
+    if (currentMode === 'singleplayer' && gameState.isRunning) {
+        startGameLoop();
+    } else if (currentMode === 'multiplayer' && multiplayerGameState.isRunning) {
         startGameLoop();
     }
 }
@@ -198,6 +299,14 @@ function backToStart() {
     if (gameInterval) clearInterval(gameInterval);
     if (animationId) cancelAnimationFrame(animationId);
     
+    // Limpa estado do multiplayer
+    clearMultiplayerState();
+    setGameMode('singleplayer');
+    
+    // Esconde telas de game over
+    document.getElementById('gameOver').style.display = 'none';
+    document.getElementById('multiplayerGameOver').style.display = 'none';
+    
     // Volta para tela inicial
     showScreen(SCREENS.START);
 }
@@ -218,7 +327,7 @@ function handleResize() {
         initCanvas();
         // Redesenha o jogo se estiver rodando
         if (gameState.isRunning) {
-            drawGame(snake, food, obstacles, getLevelColor());
+            drawGame(snake, food, obstacles, getLevelColor(), getActivePowerups(), getActivePowerupEffects());
         }
     }
 }
@@ -242,9 +351,8 @@ function initGame() {
         
         // Gera comida inicial para visualização
         generateFood(tileCount);
-        drawGame(snake, food, obstacles, getLevelColor());
+        drawGame(snake, food, obstacles, getLevelColor(), getActivePowerups(), getActivePowerupEffects());
         
-        console.log('🐍 Snake Game inicializado com sucesso!');
         
     } catch (error) {
         console.error('❌ Erro ao inicializar o jogo:', error);
@@ -285,19 +393,150 @@ function initGame() {
 }
 
 /**
- * Expõe funções globais para uso no HTML
+ * Inicia jogo multiplayer
+ */
+function startMultiplayer() {
+    try {
+        setGameMode('multiplayer');
+        showScreen(SCREENS.GAME);
+        
+        // Configura UI para multiplayer
+        setupMultiplayerUI();
+        
+        // Inicializa canvas
+        initCanvas();
+        
+        // Inicializa multiplayer
+        initMultiplayer(tileCount);
+        
+        // Gera comida inicial
+        generateFood(tileCount);
+        
+        // Inicia loop do jogo
+        startGameLoop();
+    } catch (error) {
+        console.error('Error starting multiplayer game:', error);
+    }
+}
+
+/**
+ * Configura UI para modo multiplayer
+ */
+function setupMultiplayerUI() {
+    try {
+        document.getElementById('singlePlayerInfo').style.display = 'none';
+        document.getElementById('multiplayerInfo').style.display = 'block';
+        document.getElementById('controlsText').textContent = '🎮 Player 1: WASD • Player 2: Arrow Keys';
+        
+        updateMultiplayerScores();
+        updatePlayerStatus('player1', true);
+        updatePlayerStatus('player2', true);
+    } catch (error) {
+        console.error('Error setting up multiplayer UI:', error);
+    }
+}
+
+/**
+ * Configura UI para modo single player
+ */
+function setupSinglePlayerUI() {
+    document.getElementById('singlePlayerInfo').style.display = 'block';
+    document.getElementById('multiplayerInfo').style.display = 'none';
+    document.getElementById('controlsText').textContent = '🖮 Use arrow keys to control the snake';
+}
+
+/**
+ * Atualiza pontuações do multiplayer
+ */
+function updateMultiplayerScores() {
+    const mpState = getMultiplayerState();
+    document.getElementById('player1Score').textContent = mpState.player1.score;
+    document.getElementById('player2Score').textContent = mpState.player2.score;
+}
+
+/**
+ * Atualiza status do jogador
+ */
+function updatePlayerStatus(player, isAlive) {
+    const statusElement = document.getElementById(`${player}Status`);
+    if (isAlive) {
+        statusElement.textContent = '🐍 Alive';
+        statusElement.className = 'player-status alive';
+    } else {
+        statusElement.textContent = '💀 Dead';
+        statusElement.className = 'player-status dead';
+    }
+}
+
+/**
+ * Finaliza jogo multiplayer
+ */
+function endMultiplayerGame(winner) {
+    const mpState = getMultiplayerState();
+    
+    document.getElementById('gameOver').style.display = 'none';
+    document.getElementById('multiplayerGameOver').style.display = 'block';
+    
+    document.getElementById('player1FinalScore').textContent = mpState.player1.score;
+    document.getElementById('player2FinalScore').textContent = mpState.player2.score;
+    
+    let winnerText = '';
+    if (winner === 'draw') {
+        winnerText = "🤝 It's a Draw!";
+        document.getElementById('multiplayerResultTitle').textContent = "Draw!";
+    } else if (winner === 'player1') {
+        winnerText = "🏆 Player 1 Wins!";
+        document.getElementById('multiplayerResultTitle').textContent = "Player 1 Wins!";
+    } else if (winner === 'player2') {
+        winnerText = "🏆 Player 2 Wins!";
+        document.getElementById('multiplayerResultTitle').textContent = "Player 2 Wins!";
+    }
+    
+    document.getElementById('multiplayerWinner').textContent = winnerText;
+}
+
+/**
+ * Reinicia jogo multiplayer
+ */
+function restartMultiplayer() {
+    document.getElementById('multiplayerGameOver').style.display = 'none';
+    
+    // Reinicia multiplayer
+    initMultiplayer(tileCount);
+    generateFood(tileCount);
+    
+    // Atualiza UI
+    updateMultiplayerScores();
+    updatePlayerStatus('player1', true);
+    updatePlayerStatus('player2', true);
+    
+    // Inicia loop
+    startGameLoop();
+}
+
+/**
+ * Expõe funções globais para uso no HTML e inicializa o jogo
  * (Necessário para compatibilidade com onclick handlers)
  */
-window.startGame = startGame;
-window.restartGame = restartGame;
-window.backToStart = backToStart;
-window.showHighScores = showHighScores;
+function exposeGlobalFunctions() {
+    window.startGame = startGame;
+    window.startMultiplayer = startMultiplayer;
+    window.restartGame = restartGame;
+    window.restartMultiplayer = restartMultiplayer;
+    window.backToStart = backToStart;
+    window.showHighScores = showHighScores;
+}
 
 /**
  * Inicializa o jogo quando o DOM estiver pronto
  */
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initGame);
-} else {
+function initializeApp() {
     initGame();
+    exposeGlobalFunctions();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+    initializeApp();
 }

@@ -4,6 +4,7 @@
  */
 
 import { setDirection } from './gameState.js';
+import { handleMultiplayerControls, getGameMode } from './multiplayer.js';
 
 /**
  * Códigos das teclas de direção
@@ -20,6 +21,12 @@ const KEYS = {
  * @param {KeyboardEvent} event - Evento do teclado
  */
 function handleKeyboard(event) {
+    // Verifica se estamos no modo multiplayer
+    if (getGameMode() === 'multiplayer') {
+        handleMultiplayerControls(event);
+        return;
+    }
+    
     const keyPressed = event.keyCode;
     
     switch (keyPressed) {

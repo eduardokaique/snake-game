@@ -22,5 +22,8 @@
 /* Importa estilos dos controles */
 @import url('./controls.css');
 
+/* Importa estilos do multiplayer */
+@import url('./multiplayer.css');
+
 /* Importa estilos responsivos */
 @import url('./responsive.css');

@@ -19,6 +19,8 @@ let gameState = {
 // Objetos do jogo
 let food = {};
 let obstacles = [];
+let powerupSpawnTimer = 0;
+let lastPowerupSpawn = 0;
 
 // Jogador atual
 let currentPlayer = 'Player';
@@ -44,6 +46,8 @@ function resetGameState(tileCount) {
     };
     
     obstacles = [];
+    powerupSpawnTimer = 0;
+    lastPowerupSpawn = 0;
 }
 
 /**
@@ -115,6 +119,8 @@ export {
     food, 
     obstacles, 
     currentPlayer, 
+    powerupSpawnTimer,
+    lastPowerupSpawn,
     resetGameState, 
     updateScore, 
     getLevelColor, 
