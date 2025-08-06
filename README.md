@@ -1,74 +1,102 @@
-# 🐍 Snake Game - Versão Refatorada
+# 🐍 Snake Game - Versão Standalone
 
-Um jogo da cobrinha clássico e responsivo implementado de forma **modular e didática** com HTML5, CSS3 e JavaScript ES6+.
+Um jogo da cobrinha clássico e responsivo implementado de forma **otimizada e completa** em um único arquivo HTML para máxima compatibilidade e facilidade de uso.
 
-![Snake Game](https://img.shields.io/badge/Game-Snake-brightgreen) ![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black) ![ES6 Modules](https://img.shields.io/badge/ES6-Modules-yellow)
+![Snake Game](https://img.shields.io/badge/Game-Snake-brightgreen) ![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black) ![Standalone](https://img.shields.io/badge/Format-Standalone-blue)
 
 ## 📚 Sobre Esta Versão
 
-Esta é uma versão **refatorada e organizada** do jogo Snake, criada com foco na **educação e manutenibilidade**. O código foi dividido em módulos lógicos para facilitar o entendimento e a expansão do projeto.
+Esta é uma versão **standalone completa** do jogo Snake, criada para **máxima compatibilidade** e facilidade de distribuição. Todo o código (HTML, CSS e JavaScript) está integrado em um único arquivo, eliminando problemas de CORS e dependências externas.
 
 ## 🚀 Características
 
-- **Arquitetura Modular**: Código separado em módulos ES6 com responsabilidades bem definidas
-- **Comentários Didáticos**: Documentação extensa para facilitar o aprendizado
-- **Responsivo**: Funciona perfeitamente em desktop e dispositivos móveis
-- **Controles Intuitivos**: 
-  - Desktop: Setas do teclado
-  - Mobile: Botões touch e gestos de swipe
-- **Sistema de Níveis**: Progressão automática com aumento de dificuldade
-- **Obstáculos**: Aparecem a partir do nível 2
-- **High Scores**: Sistema de pontuação máxima com localStorage
-- **Design Moderno**: Interface limpa e atraente
-- **Acessibilidade**: Otimizado para leitores de tela e navegação por teclado
+### ✨ **Funcionalidades Principais**
+- **Arquivo Único**: Todo o jogo em um só arquivo HTML - sem dependências externas
+- **Zero CORS Issues**: Funciona diretamente no navegador sem necessidade de servidor
+- **Responsivo 100%**: Adapta-se perfeitamente a desktop, tablet e mobile
+- **Compatibilidade Universal**: Funciona em qualquer navegador moderno
+
+### 🎮 **Modos de Jogo**
+- **Single Player**: Jogo clássico com power-ups e níveis progressivos
+- **Multiplayer Local**: Modo 2 jogadores (disponível apenas em desktop)
+  - Player 1: Controles WASD
+  - Player 2: Setas do teclado
+
+### 🏆 **Sistema de Progressão**
+- **Níveis Infinitos**: Dificuldade cresce automaticamente a cada 50 pontos
+- **Obstáculos Dinâmicos**: Aparecem e aumentam conforme o nível
+- **Cores Evolutivas**: 6 cores diferentes da cobra (nunca vermelha para não confundir com comida)
+- **High Scores**: Ranking local salvo no navegador
+
+### ⚡ **Sistema de Power-ups** (Single Player)
+- **Speed Boost** ⚡: Aumenta velocidade temporariamente (5s)
+- **Score Multiplier** ✨: Duplica pontuação da comida (8s) 
+- **Invincibility** 🛡️: Proteção contra colisões (6s)
+- **Aparição Inteligente**: Spawn a cada 8-12 segundos, máximo 2 ativos
+- **Efeitos Visuais**: Animações pulsantes e indicadores visuais
+
+### 🎯 **Controles Otimizados**
+- **Desktop**: Setas do teclado (responsivo e preciso)
+- **Mobile**: Controles touch dedicados com feedback visual
+- **Multiplayer**: Detecção automática - oculta em mobile para melhor UX
 
 ## 🎮 Como Jogar
 
-1. Digite seu nickname (opcional)
-2. Clique em "Start Game"
-3. Use as setas do teclado (desktop) ou controles touch (mobile) para mover a cobra
-4. Colete comida para aumentar sua pontuação
-5. Evite colidir com obstáculos ou com o próprio corpo da cobra
-6. A cada 50 pontos você sobe de nível com mais obstáculos
+### 🎯 Single Player
+1. **Inicie**: Digite seu nickname (opcional) e clique em "Single Player"
+2. **Mova**: Use setas do teclado (desktop) ou botões touch (mobile)
+3. **Colete**: Pegue comida vermelha (🍎) para aumentar pontuação
+4. **Power-ups**: Colete power-ups coloridos para vantagens temporárias:
+   - ⚡ **Speed Boost** (laranja): Velocidade aumentada
+   - ✨ **Score Multiplier** (amarelo): Pontos em dobro
+   - 🛡️ **Invincibility** (verde): Proteção contra colisões
+5. **Sobreviva**: Evite colidir com obstáculos, paredes ou próprio corpo
+6. **Progrida**: A cada 50 pontos você sobe de nível com mais obstáculos
 
-## 🏗️ Arquitetura do Projeto
+### 🏆 Multiplayer Local (2 Jogadores - Desktop Only)
+1. **Inicie**: Clique em "Multiplayer (2P)" (disponível apenas em desktop)
+2. **Controles**: 
+   - **Player 1** (verde): WASD (W=↑, A=←, S=↓, D=→)
+   - **Player 2** (laranja): Setas do teclado (↑↓←→)
+3. **Compete**: Colete comida para aumentar sua pontuação individual
+4. **Batalhe**: Evite colidir com seu oponente ou próprio corpo
+5. **Vença**: O último jogador vivo vence a partida!
 
-### 📁 Estrutura Organizada
+## 🏗️ Arquitetura Standalone
+
+### 📁 Estrutura Simplificada
 
 ```
 snake-game/
-├── index.html              # Página principal
-├── css/                    # Estilos organizados
-│   ├── main.css           # Arquivo principal que importa todos os módulos
-│   ├── base.css           # Reset, acessibilidade e estilos base
-│   ├── screens.css        # Telas inicial e high scores
-│   ├── game.css           # Tela principal do jogo
-│   ├── controls.css       # Controles desktop e mobile
-│   └── responsive.css     # Media queries responsivas
-├── js/                     # JavaScript modular
-│   ├── main.js            # Arquivo principal e orquestrador
-│   └── modules/           # Módulos específicos
-│       ├── canvas.js      # Gerenciamento do canvas
-│       ├── gameState.js   # Estado do jogo (score, nível, cobra)
-│       ├── gameLogic.js   # Lógica principal (movimento, colisões)
-│       ├── controls.js    # Controles (teclado, touch, swipe)
-│       ├── storage.js     # localStorage e high scores
-│       └── ui.js          # Interface do usuário
-├── README.md              # Documentação
-└── style.css              # CSS antigo (mantido para compatibilidade)
+├── index.html              # 🎯 ARQUIVO PRINCIPAL - Contém TUDO
+│                          #    ├── HTML estrutural
+│                          #    ├── CSS inline completo
+│                          #    └── JavaScript integrado
+├── js/                     # 📚 Versão modular (legado)
+├── css/                    # 🎨 Estilos modulares (legado)  
+└── README.md              # 📖 Documentação
 ```
 
-### 🧩 Módulos JavaScript
+### 🎯 **Vantagens da Arquitetura Standalone**
+- ✅ **Zero Dependencies**: Sem arquivos externos ou imports
+- ✅ **CORS-Free**: Funciona diretamente no navegador (file://)
+- ✅ **Portável**: Fácil distribuição - apenas um arquivo
+- ✅ **Rápido**: Carregamento instantâneo - sem múltiplas requisições
+- ✅ **Confiável**: Sem problemas de ES6 modules ou servidor
 
-| Módulo | Responsabilidade | Principais Funções |
-|--------|-----------------|-------------------|
-| **canvas.js** | Renderização e canvas | `initCanvas()`, `drawGame()` |
-| **gameState.js** | Estado do jogo | `resetGameState()`, `updateScore()`, `setDirection()` |
-| **gameLogic.js** | Lógica principal | `moveSnake()`, `generateFood()`, `generateObstacles()` |
-| **controls.js** | Controles | `handleKeyboard()`, `initTouchControls()` |
-| **storage.js** | Persistência | `saveHighScore()`, `getHighScores()` |
-| **ui.js** | Interface | `showScreen()`, `updateScore()`, `showGameOver()` |
-| **main.js** | Orquestração | `startGame()`, `gameLoop()`, `initGame()` |
+### 🧩 Componentes Integrados (index.html)
+
+| Componente | Responsabilidade | Principais Funções |
+|------------|-----------------|-------------------|
+| **🖼️ Canvas & Rendering** | Renderização visual | `initCanvas()`, `drawGame()`, `drawPowerup()` |
+| **🎮 Game Logic** | Lógica principal | `singlePlayerGameLoop()`, `multiplayerGameLoop()` |
+| **🎯 Game State** | Estado do jogo | `startGame()`, `endGame()`, `generateFood()` |
+| **⚡ Power-ups System** | Sistema de power-ups | `spawnPowerup()`, `checkPowerupCollision()`, `applyPowerupEffect()` |
+| **🏆 Multiplayer** | Modo 2 jogadores | `startMultiplayer()`, `updateMultiplayerScores()` |
+| **🎛️ Controls** | Controles e input | `initMobileControls()`, `handleKeyboard()` |
+| **💾 Storage** | Persistência local | `saveScore()`, `getHighScores()` |
+| **🎨 UI Management** | Interface usuário | `showScreen()`, `updateScore()`, `showGameOver()` |
+| **📱 Mobile Detection** | Otimização UX | `isMobileDevice()`, controles adaptativos |
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -163,6 +191,27 @@ const gridSize = 20;        // Tamanho de cada célula
 const maxObstacles = 8;     // Máximo de obstáculos por nível
 ```
 
+### Power-ups (powerups.js)
+```javascript
+// Tipos de power-ups disponíveis
+POWERUP_TYPES = {
+    SPEED_BOOST: { duration: 5000, spawnChance: 0.3 },
+    SLOW_MOTION: { duration: 8000, spawnChance: 0.25 },
+    SCORE_MULTIPLIER: { duration: 10000, spawnChance: 0.2 },
+    INVINCIBILITY: { duration: 6000, spawnChance: 0.15 },
+    MAGNET: { duration: 12000, spawnChance: 0.1 }
+}
+```
+
+### Multiplayer (multiplayer.js)
+```javascript
+// Controles dos jogadores
+MULTIPLAYER_KEYS = {
+    PLAYER1: { LEFT: 65, UP: 87, RIGHT: 68, DOWN: 83 }, // WASD
+    PLAYER2: { LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40 }  // Setas
+}
+```
+
 ### Cores e Temas (CSS)
 ```css
 /* Em css/base.css */
@@ -185,9 +234,9 @@ const maxObstacles = 8;     // Máximo de obstáculos por nível
 ## 🎯 Possíveis Melhorias
 
 ### Funcionalidades
-- [ ] Sistema de power-ups
+- [x] Sistema de power-ups
 - [ ] Diferentes tipos de obstáculos
-- [ ] Modo multiplayer local
+- [x] Modo multiplayer local
 - [ ] Temas visuais alternativos
 - [ ] Sistema de conquistas
 - [ ] Salvamento em nuvem
@@ -207,10 +256,10 @@ const maxObstacles = 8;     // Máximo de obstáculos por nível
 - **Cohesion**: Alto (responsabilidades bem definidas)
 
 ### Métricas de Qualidade
-- **Linhas de código**: ~1000 (bem distribuídas)
-- **Funções**: ~40 (média de 25 linhas cada)
-- **Modules**: 7 (organização lógica)
-- **Comentários**: >200 linhas (documentação extensa)
+- **Linhas de código**: ~1500 (bem distribuídas)
+- **Funções**: ~60 (média de 25 linhas cada)
+- **Modules**: 9 (organização lógica)
+- **Comentários**: >300 linhas (documentação extensa)
 
 ## 🤝 Contribuindo
 
