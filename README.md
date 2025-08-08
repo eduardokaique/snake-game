@@ -31,6 +31,7 @@ Esta é uma versão **standalone completa** do jogo Snake, resultado de uma **de
 - **Zero CORS Issues**: Funciona diretamente no navegador sem necessidade de servidor
 - **Responsivo 100%**: Adapta-se perfeitamente a desktop, tablet e mobile
 - **Compatibilidade Universal**: Funciona em qualquer navegador moderno
+- **Sistema de Som Completo**: Efeitos sonoros e música de fundo estilo Pokémon Game Boy
 
 ### 🎮 **Modos de Jogo**
 - **Single Player**: Jogo clássico com power-ups e níveis progressivos
@@ -55,6 +56,12 @@ Esta é uma versão **standalone completa** do jogo Snake, resultado de uma **de
 - **Desktop**: Setas do teclado (responsivo e preciso)
 - **Mobile**: Controles touch dedicados com feedback visual
 - **Multiplayer**: Detecção automática - oculta em mobile para melhor UX
+
+### 🎵 **Sistema de Som Avançado**
+- **Efeitos Sonoros**: Som ao comer, level up, game over, power-ups
+- **Música de Fundo**: Melodia nostálgica estilo Pokémon Game Boy (42 notas)
+- **Controles de Áudio**: Botão mute/unmute e slider de volume
+- **Som 8-bit Autêntico**: Gerado via Web Audio API com oscillador square wave
 
 ## 🎮 Como Jogar
 
@@ -157,12 +164,14 @@ Esta abordagem **não é recomendada** para:
 | **💾 Storage** | Persistência local | `saveScore()`, `getHighScores()` |
 | **🎨 UI Management** | Interface usuário | `showScreen()`, `updateScore()`, `showGameOver()` |
 | **📱 Mobile Detection** | Otimização UX | `isMobileDevice()`, controles adaptativos |
+| **🎵 Sound System** | Sistema de áudio | `SoundManager`, `playTone()`, `startBackgroundMusic()` |
 
 ## 🛠️ Tecnologias Utilizadas
 
 - **HTML5**: Canvas API, Semantic Structure, Local Storage
 - **CSS3**: Flexbox, Media Queries, Animations, Custom Properties
 - **JavaScript**: Event Handling, Game Loops, Mobile Detection
+- **Web Audio API**: Som 8-bit gerado via osciladores programáticos
 - **Progressive Enhancement**: Graceful degradation para máxima compatibilidade
 - **Responsive Design**: Viewport otimizado para todos dispositivos
 
@@ -320,7 +329,7 @@ function isMobileDevice() {
 - [x] **Standalone architecture** (zero dependencies)
 
 ### 🚀 **Próximas Features**
-- [ ] **Sistema de sons** (efeitos sonoros e música)
+- [x] **Sistema de sons** (efeitos sonoros e música de fundo estilo Pokémon Game Boy)
 - [ ] **Temas visuais** (escuro, claro, neon, retrô)
 - [ ] **Diferentes tipos de obstáculos** (móveis, temporários)
 - [ ] **Sistema de conquistas** (badges e milestones)
@@ -425,7 +434,15 @@ MIT License - veja [LICENSE](LICENSE) para detalhes.
 
 ## 🚀 Changelog & Updates
 
-### 🆕 **v2.0 - Standalone Complete** (Atual)
+### 🆕 **v2.1 - Audio Complete** (Atual)
+- ✨ **NEW**: Sistema de som completo com Web Audio API
+- ✨ **NEW**: Música de fundo estilo Pokémon Game Boy (42 notas)
+- ✨ **NEW**: Efeitos sonoros para todas as ações do jogo
+- ✨ **NEW**: Controles de áudio (mute/volume) integrados
+- 🔧 **IMPROVED**: Layout responsivo otimizado (header/footer full-width)
+- 🔧 **IMPROVED**: Área de jogo maximizada para melhor experiência
+
+### 📋 **v2.0 - Standalone Complete**
 - ✨ **NEW**: Sistema completo de power-ups (3 tipos)
 - ✨ **NEW**: Modo multiplayer local desktop-only
 - ✨ **NEW**: Detecção inteligente mobile/desktop
