@@ -37,7 +37,9 @@
             align-items: center;
             justify-content: center;
             color: white;
-            overflow-y: hidden;
+            overflow: hidden;
+            margin: 0;
+            padding: 5px;
         }
 
         .start-screen, .highscores-screen {
@@ -60,10 +62,11 @@
             width: 90%;
         }
 
-        h1 {
-            font-size: 3rem;
-            margin-bottom: 30px;
+        .game-container h1 {
+            font-size: 1.5rem;
+            margin: 0 0 10px 0;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-align: center;
         }
 
         h2 {
@@ -130,27 +133,34 @@
         }
 
         .game-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            box-sizing: border-box;
             text-align: center;
         }
 
         .score-container {
-            margin-bottom: 20px;
+            width: 100vw;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 16px rgba(31, 38, 135, 0.37);
+            padding: 10px 20px;
+            margin: -5px -5px 10px -5px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .single-player-info, .multiplayer-info {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
+            text-align: center;
         }
 
         .player-info, .game-info {
@@ -160,7 +170,7 @@
         }
 
         .player-name, .score, .level {
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             font-weight: 600;
         }
 
@@ -196,7 +206,11 @@
         .canvas-container {
             display: flex;
             justify-content: center;
-            margin: 20px 0;
+            align-items: center;
+            flex-grow: 1;
+            margin: 10px 0;
+            width: 100%;
+            max-width: 800px;
         }
 
         #gameCanvas {
@@ -236,10 +250,15 @@
         }
 
         .controls {
-            margin-top: 20px;
+            width: 100vw;
             background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
+            padding: 8px 20px;
+            margin: 5px -5px -5px -5px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .mobile-controls {
@@ -316,49 +335,69 @@
 
         @media (max-width: 768px) {
             body {
-                padding: 10px;
+                padding: 2px;
             }
 
-            h1 {
-                font-size: 2.5rem;
+            .game-container {
+                padding: 2px;
+            }
+
+            .game-container h1 {
+                font-size: 1.2rem;
+                margin: 0 0 5px 0;
             }
 
             .start-container, .highscores-container {
-                padding: 30px 20px;
+                padding: 20px 15px;
+            }
+
+            .score-container {
+                padding: 8px 15px;
+                margin: -2px -2px 10px -2px;
             }
 
             .single-player-info, .multiplayer-info {
-                flex-direction: column;
+                justify-content: center;
                 text-align: center;
+                gap: 15px;
             }
 
             .player-info, .game-info {
                 justify-content: center;
+                gap: 10px;
             }
 
             .multiplayer-info .players-scores {
                 flex-direction: column;
-                gap: 15px;
+                gap: 10px;
             }
 
             .vs {
                 order: 2;
             }
 
-            #gameCanvas {
-                max-width: 90vw;
-                max-height: 90vw;
+            .controls {
+                padding: 6px 15px;
+                margin: 5px -2px -2px -2px;
+            }
+
+            .footer-controls {
+                gap: 10px !important;
+            }
+
+            .footer-controls span {
+                font-size: 0.7rem !important;
             }
 
             .game-over, .multiplayer-game-over {
                 width: 90%;
-                max-width: 400px;
-                padding: 30px 20px;
+                max-width: 350px;
+                padding: 20px 15px;
             }
 
             .multiplayer-results {
                 flex-direction: column;
-                gap: 15px;
+                gap: 10px;
             }
 
             .highscore-item {
@@ -373,18 +412,32 @@
         }
 
         @media (max-width: 480px) {
-            h1 {
-                font-size: 2rem;
-            }
-
-            button {
-                min-width: 180px;
-                padding: 10px 20px;
+            .game-container h1 {
                 font-size: 1rem;
             }
 
+            .player-name, .score, .level {
+                font-size: 0.8rem;
+            }
+
+            button {
+                min-width: 150px;
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+
             .start-container, .highscores-container {
-                padding: 25px 15px;
+                padding: 20px 10px;
+            }
+
+            .footer-controls button {
+                min-width: 80px;
+                font-size: 0.7rem;
+                padding: 4px 8px;
+            }
+
+            .footer-controls input {
+                width: 60px;
             }
         }
     </style>
@@ -496,8 +549,10 @@
         </div>
         
         <div class="controls">
-            <div class="desktop-controls">
-                <p id="controlsText">🖮 Use arrow keys to control the snake</p>
+            <div class="footer-controls" style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 5px; width: 100%;">
+                <button onclick="toggleSound()" id="soundToggle" style="min-width: 100px; font-size: 0.8rem; padding: 6px 12px;">🔊 Sound ON</button>
+                <input type="range" id="volumeSlider" min="0" max="100" value="50" style="width: 80px;" onchange="adjustVolume(this.value)">
+                <span id="controlsText" style="font-size: 0.8rem;">🖮 Use arrow keys to control the snake</span>
             </div>
             <div class="mobile-controls" id="mobileControls">
                 <div class="control-pad">
@@ -509,12 +564,243 @@
                     <button class="control-btn down" id="downBtn" aria-label="Move down">▼</button>
                 </div>
             </div>
-            <p><small>📈 New level every 50 points • 🚧 Obstacles appear from level 2 (Single Player only)</small></p>
+            <p style="margin: 0; font-size: 0.7rem; opacity: 0.8;">📈 New level every 50 points • 🚧 Obstacles appear from level 2</p>
         </div>
     </div>
 
     <script>
         // Snake Game - Versão Standalone Completa
+        
+        // ========== SOUND SYSTEM ==========
+        class SoundManager {
+            constructor() {
+                this.sounds = {};
+                this.isMuted = false;
+                this.volume = 0.5;
+                this.backgroundMusic = null;
+                this.audioContext = null;
+                this.initialized = false;
+            }
+            
+            async initialize() {
+                if (this.initialized) return;
+                
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    // Resume audio context if suspended (required by browsers)
+                    if (this.audioContext.state === 'suspended') {
+                        await this.audioContext.resume();
+                    }
+                    
+                    await this.createSounds();
+                    this.initialized = true;
+                } catch (error) {
+                    // Audio not supported or blocked
+                }
+            }
+            
+            async createSounds() {
+                // Create oscillator-based sound effects
+                this.sounds = {
+                    eat: () => this.playTone(800, 0.1, 'sine'),
+                    gameOver: () => this.playGameOverSound(),
+                    levelUp: () => this.playLevelUpSound(),
+                    powerup: () => this.playPowerupSound(),
+                    move: () => this.playTone(200, 0.05, 'square', 0.1)
+                };
+                
+                // Background music (simple melody loop)
+                this.createBackgroundMusic();
+            }
+            
+            playTone(frequency, duration, type = 'sine', volume = this.volume) {
+                if (!this.initialized || this.isMuted || !this.audioContext) return;
+                
+                try {
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+                    oscillator.type = type;
+                    
+                    gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(volume, this.audioContext.currentTime + 0.01);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
+                    
+                    oscillator.start(this.audioContext.currentTime);
+                    oscillator.stop(this.audioContext.currentTime + duration);
+                } catch (error) {
+                    // Error playing sound
+                }
+            }
+            
+            playGameOverSound() {
+                if (!this.initialized || this.isMuted) return;
+                
+                // Descending tone sequence
+                const notes = [440, 330, 220, 165];
+                notes.forEach((freq, index) => {
+                    setTimeout(() => this.playTone(freq, 0.5, 'sawtooth'), index * 200);
+                });
+            }
+            
+            playLevelUpSound() {
+                if (!this.initialized || this.isMuted) return;
+                
+                // Ascending tone sequence
+                const notes = [330, 440, 550, 660];
+                notes.forEach((freq, index) => {
+                    setTimeout(() => this.playTone(freq, 0.2, 'sine'), index * 100);
+                });
+            }
+            
+            playPowerupSound() {
+                if (!this.initialized || this.isMuted) return;
+                
+                // Special powerup sound
+                this.playTone(880, 0.1, 'sine');
+                setTimeout(() => this.playTone(1320, 0.15, 'sine'), 100);
+            }
+            
+            createBackgroundMusic() {
+                // Pokemon Game Boy style melody - adventurous and nostalgic
+                this.musicMelody = [
+                    // Intro phrase - uplifting
+                    { freq: 523, duration: 0.4 },  // C5
+                    { freq: 587, duration: 0.4 },  // D5
+                    { freq: 659, duration: 0.4 },  // E5
+                    { freq: 784, duration: 0.8 },  // G5 (long)
+                    { freq: 0, duration: 0.2 },    // Rest
+                    
+                    // Main melody phrase 1
+                    { freq: 659, duration: 0.4 },  // E5
+                    { freq: 587, duration: 0.4 },  // D5
+                    { freq: 523, duration: 0.4 },  // C5
+                    { freq: 587, duration: 0.4 },  // D5
+                    { freq: 659, duration: 0.6 },  // E5
+                    { freq: 523, duration: 0.6 },  // C5
+                    { freq: 0, duration: 0.4 },    // Rest
+                    
+                    // Counter melody
+                    { freq: 392, duration: 0.4 },  // G4
+                    { freq: 440, duration: 0.4 },  // A4
+                    { freq: 493, duration: 0.4 },  // B4
+                    { freq: 523, duration: 0.8 },  // C5 (long)
+                    { freq: 0, duration: 0.2 },    // Rest
+                    
+                    // Main melody phrase 2 - higher
+                    { freq: 784, duration: 0.4 },  // G5
+                    { freq: 659, duration: 0.4 },  // E5
+                    { freq: 587, duration: 0.4 },  // D5
+                    { freq: 659, duration: 0.4 },  // E5
+                    { freq: 784, duration: 0.6 },  // G5
+                    { freq: 659, duration: 0.6 },  // E5
+                    { freq: 0, duration: 0.4 },    // Rest
+                    
+                    // Bridge section - contemplative
+                    { freq: 440, duration: 0.6 },  // A4
+                    { freq: 493, duration: 0.6 },  // B4
+                    { freq: 523, duration: 0.8 },  // C5
+                    { freq: 587, duration: 0.4 },  // D5
+                    { freq: 523, duration: 1.2 },  // C5 (very long)
+                    { freq: 0, duration: 0.4 },    // Rest
+                    
+                    // Climax phrase - triumphant
+                    { freq: 880, duration: 0.4 },  // A5
+                    { freq: 784, duration: 0.4 },  // G5
+                    { freq: 659, duration: 0.4 },  // E5
+                    { freq: 784, duration: 0.4 },  // G5
+                    { freq: 880, duration: 0.8 },  // A5 (long)
+                    { freq: 784, duration: 0.4 },  // G5
+                    { freq: 659, duration: 1.2 },  // E5 (very long)
+                    { freq: 0, duration: 0.4 },    // Rest
+                    
+                    // Ending phrase - resolution
+                    { freq: 523, duration: 0.6 },  // C5
+                    { freq: 587, duration: 0.6 },  // D5
+                    { freq: 659, duration: 0.8 },  // E5
+                    { freq: 523, duration: 1.6 },  // C5 (final long note)
+                    { freq: 0, duration: 1.0 }     // Long rest before repeat
+                ];
+                
+                this.musicIndex = 0;
+                this.musicPlaying = false;
+                this.musicTimeout = null;
+            }
+            
+            startBackgroundMusic() {
+                if (!this.initialized || this.isMuted || this.musicPlaying) return;
+                
+                this.musicPlaying = true;
+                this.musicIndex = 0; // Reset to beginning
+                this.playMusicLoop();
+            }
+            
+            stopBackgroundMusic() {
+                this.musicPlaying = false;
+                if (this.musicTimeout) {
+                    clearTimeout(this.musicTimeout);
+                    this.musicTimeout = null;
+                }
+            }
+            
+            playMusicLoop() {
+                if (!this.musicPlaying || this.isMuted) return;
+                
+                if (!this.musicMelody || this.musicMelody.length === 0) {
+                    this.musicPlaying = false;
+                    return;
+                }
+                
+                const currentNote = this.musicMelody[this.musicIndex % this.musicMelody.length];
+                
+                // Play note if frequency > 0 (0 = rest/silence)
+                if (currentNote.freq > 0) {
+                    this.playTone(currentNote.freq, currentNote.duration, 'square', this.volume * 0.4);
+                }
+                
+                this.musicIndex++;
+                
+                // Schedule next note
+                this.musicTimeout = setTimeout(() => this.playMusicLoop(), currentNote.duration * 1000);
+            }
+            
+            play(soundName) {
+                if (this.sounds[soundName] && !this.isMuted) {
+                    this.sounds[soundName]();
+                }
+            }
+            
+            setVolume(volume) {
+                this.volume = Math.max(0, Math.min(1, volume));
+            }
+            
+            toggleMute() {
+                this.isMuted = !this.isMuted;
+                if (this.isMuted) {
+                    this.stopBackgroundMusic();
+                } else if (gameState.isRunning || multiplayerState.isRunning) {
+                    this.startBackgroundMusic();
+                }
+                return this.isMuted;
+            }
+            
+            setMute(muted) {
+                this.isMuted = muted;
+                if (this.isMuted) {
+                    this.stopBackgroundMusic();
+                } else if (gameState.isRunning || multiplayerState.isRunning) {
+                    this.startBackgroundMusic();
+                }
+            }
+        }
+        
+        // Global sound manager instance
+        const soundManager = new SoundManager();
         
         // ========== VARIÁVEIS GLOBAIS ==========
         let canvas, ctx, gridSize = 20, tileCount;
@@ -568,7 +854,10 @@
             canvas = document.getElementById('gameCanvas');
             ctx = canvas.getContext('2d');
             
-            const maxSize = Math.min(window.innerWidth - 40, window.innerHeight - 300, 600);
+            // Calculate available space considering header (~80px) and footer (~120px)
+            const availableWidth = window.innerWidth - 20;
+            const availableHeight = window.innerHeight - 200;
+            const maxSize = Math.min(availableWidth, availableHeight, 800);
             const canvasSize = Math.floor(maxSize / 20) * 20;
             
             canvas.width = canvasSize;
@@ -842,6 +1131,7 @@
         }
         
         function applyPowerupEffect(powerup) {
+            soundManager.play('powerup');
             const now = Date.now();
             
             // Remove efeitos conflitantes
@@ -997,8 +1287,11 @@
         }
         
         // ========== FUNÇÕES PRINCIPAIS ==========
-        function startGame() {
+        async function startGame() {
             gameMode = 'singleplayer';
+            
+            // Initialize audio first
+            await soundManager.initialize();
             
             showScreen('game');
             setupSinglePlayerUI();
@@ -1027,11 +1320,17 @@
             updatePlayerInfo();
             
             generateFood();
+            soundManager.initialize().then(() => {
+                soundManager.startBackgroundMusic();
+            });
             startGameLoop();
         }
         
-        function startMultiplayer() {
+        async function startMultiplayer() {
             gameMode = 'multiplayer';
+            
+            // Initialize audio first
+            await soundManager.initialize();
             
             showScreen('game');
             setupMultiplayerUI();
@@ -1054,6 +1353,9 @@
             updatePlayerStatus('player2', true);
             
             generateFood();
+            soundManager.initialize().then(() => {
+                soundManager.startBackgroundMusic();
+            });
             startGameLoop();
         }
         
@@ -1116,11 +1418,13 @@
             
             // Check food
             if (head.x === food.x && head.y === food.y) {
+                soundManager.play('eat');
                 gameState.score += Math.floor(10 * getScoreMultiplier());
                 const newLevel = Math.floor(gameState.score / 50) + 1;
                 
                 if (newLevel > gameState.level) {
                     gameState.level = newLevel;
+                    soundManager.play('levelUp');
                     if (gameState.speed > 200) gameState.speed -= 2;
                     generateObstacles();
                     updateLevel();
@@ -1172,6 +1476,7 @@
                     
                     // Check food
                     if (head1.x === food.x && head1.y === food.y) {
+                        soundManager.play('eat');
                         multiplayerState.player1.score += 10;
                         updateMultiplayerScores();
                         generateFood();
@@ -1211,6 +1516,7 @@
                     
                     // Check food
                     if (head2.x === food.x && head2.y === food.y) {
+                        soundManager.play('eat');
                         multiplayerState.player2.score += 10;
                         updateMultiplayerScores();
                         generateFood();
@@ -1338,6 +1644,8 @@
         // ========== GAME OVER ==========
         function endGame() {
             gameState.isRunning = false;
+            soundManager.play('gameOver');
+            soundManager.stopBackgroundMusic();
             if (gameInterval) clearInterval(gameInterval);
             
             // Check and save high score
@@ -1354,6 +1662,8 @@
         
         function endMultiplayerGame(winner) {
             multiplayerState.isRunning = false;
+            soundManager.play('gameOver');
+            soundManager.stopBackgroundMusic();
             if (gameInterval) clearInterval(gameInterval);
             
             document.getElementById('player1FinalScore').textContent = multiplayerState.player1.score;
@@ -1388,6 +1698,7 @@
         function backToStart() {
             gameState.isRunning = false;
             multiplayerState.isRunning = false;
+            soundManager.stopBackgroundMusic();
             if (gameInterval) clearInterval(gameInterval);
             if (animationId) cancelAnimationFrame(animationId);
             
@@ -1430,6 +1741,26 @@
             }
         }
         
+        // ========== SOUND CONTROL FUNCTIONS ==========
+        function toggleSound() {
+            const isMuted = soundManager.toggleMute();
+            const toggleBtn = document.getElementById('soundToggle');
+            
+            if (isMuted) {
+                toggleBtn.textContent = '🔇 Sound OFF';
+                toggleBtn.style.background = 'linear-gradient(45deg, #e74c3c, #c0392b)';
+            } else {
+                toggleBtn.textContent = '🔊 Sound ON';
+                toggleBtn.style.background = 'linear-gradient(45deg, #667eea, #764ba2)';
+            }
+        }
+        
+        function adjustVolume(value) {
+            const volume = value / 100;
+            soundManager.setVolume(volume);
+        }
+        
+        
         // ========== UTILITY FUNCTIONS ==========
         function isMobileDevice() {
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
@@ -1440,6 +1771,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             initCanvas();
             initMobileControls();
+            
+            // Audio will be initialized when game starts or test button is clicked
             
             // Esconde multiplayer em dispositivos mobile
             if (isMobileDevice()) {
